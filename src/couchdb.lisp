@@ -68,7 +68,7 @@
                           (db *database*) (cred *credentials*)
                           attachments conflicts deleted-conflicts
                           revs revs-info)
-  (authenticated-request (format nil "~a/~a" (ensure-db db) id) cred
+  (authenticated-request (format nil "~a/~a" (ensure-db db) (do-urlencode:urlencode id)) cred
                          :parameters (append (if attachments '(("attachments" . "true")))
                                              (if conflicts '(("conflicts" . "true")))
                                              (if deleted-conflicts '(("deleted_conflicts" . "true")))
@@ -81,7 +81,7 @@
   (let ((dbname (ensure-db db))
         (json-string (with-output-to-string (s)
                        (yason:encode doc s))))
-    (authenticated-request (if id (format nil "~a/~a" dbname id) dbname) cred
+    (authenticated-request (if id (format nil "~a/~a" dbname (do-urlencode:urlencode id)) dbname) cred
                            :method (if id :put :post)
                            :additional-headers `(,@(if override-full-commit-p `((:x-couch-full-commit . ,(if override-full-commit "true" "false")))))
                            :parameters (append (if batch '(("batch" . "ok"))))
