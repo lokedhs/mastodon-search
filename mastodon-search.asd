@@ -6,4 +6,5 @@
   :components ((module "src"
                        :serial t
                        :components ((:file "package")
+                                    (:file "couchdb")
                                     (:file "index-generator")))))
