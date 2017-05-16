@@ -2,7 +2,8 @@
   :description "Search engine for mastodon"
   :license "Apache"
   :serial t
-  :depends-on (:mastodon)
+  :depends-on (:do-urlencode
+               :mastodon)
   :components ((module "src"
                        :serial t
                        :components ((:file "package")
