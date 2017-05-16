@@ -13,4 +13,4 @@
           (warn "No message id in message: ~s" msg)))))
 
 (defun index-loop (cred)
-  (mastodon:stream-user (lambda (type msg) (process-message type msg)) :cred cred :raw-json t))
+  (mastodon:stream-public (lambda (type msg) (process-message type msg)) :cred cred :raw-json t))
