@@ -4,7 +4,7 @@
 
 (defun process-message (type msg)
   (format t "Got message. type=~a, content=~s~%" type msg)
-  (when (equal type "message")
+  (when (equal type "update")
     (let ((obj (make-hash-table :test 'equal)))
       (setf (gethash "msg" obj) msg)
       (setf (gethash "type" obj) "message")
