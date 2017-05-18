@@ -11,4 +11,5 @@
            #:document-not-found
            #:credentials
            #:*credentials*
-           #:*database*))
+           #:*database*
+           #:document-id-conflict))

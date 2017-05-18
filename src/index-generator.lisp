@@ -9,7 +9,10 @@
     (setf (gethash "type" obj) "message")
     (let ((msg-id (gethash "url" msg)))
       (if msg-id
-          (mastodon-search.db:create-document obj :db "foo" :id msg-id)
+          (handler-case
+              (mastodon-search.db:create-document obj :db "foo" :id msg-id)
+            (mastodon-search.db:document-not-found (condition)
+              (warn "Document conflict: ~a" condition)))
           (warn "No message id in message: ~s" msg)))))
 
 (defun index-loop (cred)
