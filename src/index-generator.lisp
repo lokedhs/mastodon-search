@@ -4,16 +4,17 @@
 
 (defun process-message (type msg)
   (format t "Got message. type=~a, content=~s~%" type msg)
-  (let ((obj (make-hash-table :test 'equal)))
-    (setf (gethash "msg" obj) msg)
-    (setf (gethash "type" obj) "message")
-    (let ((msg-id (gethash "url" msg)))
-      (if msg-id
-          (handler-case
-              (mastodon-search.db:create-document obj :db "foo" :id msg-id)
-            (mastodon-search.db:document-not-found (condition)
-              (warn "Document conflict: ~a" condition)))
-          (warn "No message id in message: ~s" msg)))))
+  (when (equal type "message")
+    (let ((obj (make-hash-table :test 'equal)))
+      (setf (gethash "msg" obj) msg)
+      (setf (gethash "type" obj) "message")
+      (let ((msg-id (gethash "url" msg)))
+        (if msg-id
+            (handler-case
+                (mastodon-search.db:create-document obj :db "foo" :id msg-id)
+              (mastodon-search.db:document-not-found (condition)
+                (warn "Document conflict: ~a" condition)))
+            (warn "No message id in message: ~s" msg))))))
 
 (defun index-loop (cred)
   (mastodon:stream-public (lambda (type msg) (process-message type msg)) :cred cred :raw-json t))
