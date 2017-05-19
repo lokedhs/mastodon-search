@@ -12,7 +12,7 @@
         (if msg-id
             (handler-case
                 (mastodon-search.db:create-document obj :db "foo" :id msg-id)
-              (mastodon-search.db:document-not-found (condition)
+              (mastodon-search.db:document-id-conflict (condition)
                 (warn "Document conflict: ~a" condition)))
             (warn "No message id in message: ~s" msg))))))
 

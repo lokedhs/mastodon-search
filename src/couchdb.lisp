@@ -57,7 +57,7 @@
                       (error "Couchdb result document does not contain an 'ok' value"))
                     (list (gethash "id" json) (gethash "rev" json))))
              (404 (error 'document-not-found :code code :reason reason-string))
-             (409 (error 'document-id-conflict :code :reason reason-string))
+             (409 (error 'document-id-conflict :code code :reason reason-string))
              (t   (error 'couchdb-error :code code :reason reason-string)))
         (when need-close
           (close stream))))))
