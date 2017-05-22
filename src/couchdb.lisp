@@ -133,7 +133,12 @@
                     `(make-map ,key ,(car objs)))
                    (t
                     `(make-map ,key (make-map "$in" (list ,@objs)))))))
-      (:not `(make-map "$not" (selector ,(second clauses)))))))
+      (:not `(make-map "$not" (selector ,(second clauses))))
+      (:all (let ((key (second clauses))
+                  (objs (cddr clauses)))
+              (when (null objs)
+                (error "No arguments in :ALL"))
+              `(make-map ,key (make-map "$all" (list ,@objs))))))))
 
 (defun find-document (query &key
                               (db *database*) (cred *credentials*)
