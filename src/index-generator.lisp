@@ -2,12 +2,13 @@
 
 (declaim (optimize (speed 0) (safety 3) (debug 3)))
 
-(defun process-message (type msg)
+(defun process-message (type msg origin)
   (format t "Got message. type=~a, content=~s~%" type msg)
   (when (equal type "update")
     (let ((obj (make-hash-table :test 'equal)))
       (setf (gethash "msg" obj) msg)
       (setf (gethash "type" obj) "message")
+      (setf (gethash "instance" obj) origin)
       (let ((msg-id (gethash "url" msg)))
         (if msg-id
             (handler-case
@@ -17,4 +18,6 @@
             (warn "No message id in message: ~s" msg))))))
 
 (defun index-loop (cred)
-  (mastodon:stream-public (lambda (type msg) (process-message type msg)) :cred cred :raw-json t))
+  (mastodon:stream-public (lambda (type msg)
+                            (process-message type msg (mastodon:credentials/url cred)))
+                          :cred cred :raw-json t))
