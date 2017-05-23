@@ -116,29 +116,36 @@
                                   "asc"
                                   "desc"))))))
 
-(defmacro selector (clauses)
+(defun make-search (clauses)
   (labels ((sequence-clause (name)
-             `(make-map ,name (list ,@(loop
-                                        for v in (cdr clauses)
-                                        collect `(selector ,v))))))
+             (when (null clauses)
+               (error "No clauses"))
+             (make-map name (loop
+                              for v in (cdr clauses)
+                              collect (make-search v)))))
     (ecase (car clauses)
-      (:and (sequence-clause "$and"))
-      (:or (sequence-clause "$or"))
-      (:in (let* ((key (second clauses))
-                  (objs (cddr clauses))
-                  (l (length objs)))
-             (cond ((zerop l)
-                    (error "No arguments to :IN"))
-                   ((= l 1)
-                    `(make-map ,key ,(car objs)))
-                   (t
-                    `(make-map ,key (make-map "$in" (list ,@objs)))))))
-      (:not `(make-map "$not" (selector ,(second clauses))))
-      (:all (let ((key (second clauses))
-                  (objs (cddr clauses)))
-              (when (null objs)
-                (error "No arguments in :ALL"))
-              `(make-map ,key (make-map "$all" (list ,@objs))))))))
+      (:and
+       (sequence-clause "$and"))
+      (:or
+       (sequence-clause "$or"))
+      (:in
+       (let* ((key (second clauses))
+              (objs (cddr clauses))
+              (l (length objs)))
+         (cond ((zerop l)
+                (error "No arguments to :IN"))
+               ((= l 1)
+                (make-map key (car objs)))
+               (t
+                (make-map key (make-map "$in" objs))))))
+      (:not
+       (make-map "$not" (make-search (second clauses))))
+      (:all
+       (let ((key (second clauses))
+             (objs (cddr clauses)))
+         (when (or (null key) (null objs))
+           (error "No arguments in :ALL"))
+         (make-map key (make-map "$all" objs)))))))
 
 (defun find-document (query &key
                               (db *database*) (cred *credentials*)
